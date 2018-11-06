@@ -40,7 +40,7 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
 
   int nJet = 0;
   // Loop over jets
-  for ( unsigned iJ(0); iJ != jets->size(); ++iJ ) {
+  for ( unsigned iJ(0); iJ != unsigned(std::min(int(jets->size()),2)); ++iJ ) {
 
     reco::PFJetRef iJet( jets, iJ );
     if ( std::abs(iJet->pt()) < minJetPt_ ) continue;
@@ -61,7 +61,7 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
   }
 
   if ( (nJets_ > 0) && (nJet != nJets_) ){
-    if ( debug ) std::cout << " Fail jet multiplicity:  " << nJet << " != " << nJets_ << std::endl;
+    if ( debug ) std::cout << " Fail jet multiplicity:  " << nJet << " < " << nJets_ << std::endl;
     return false;
   }
 

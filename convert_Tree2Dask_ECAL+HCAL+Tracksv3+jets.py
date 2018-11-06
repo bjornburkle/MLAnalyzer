@@ -8,12 +8,15 @@ import os
 
 #eosDir='/eos/uscms/store/user/mba2012/IMGs'
 #eosDir='~/work/MLHEP/CMSSW_8_0_26_patch1/src/ggAnalysis/ggNtuplizer/test'
-eosDir='/eos/cms/store/user/mandrews/OPENDATA/IMGs/MGG90_Eta23'
-decays = ['DiPhotonBorn_MGG90_Eta23', 'GluGluHToGG_MGG90_Eta23', 'GJet_MGG90_Eta23']
-decays = ['dummy']
+#eosDir='/eos/cms/store/user/mandrews/OPENDATA/IMGs/MGG90_Eta23'
+eosDir='/uscms/home/bburkle/nobackup/working_area/CMSSW_9_3_0/src/MLAnalyzer/output/test'
+outDir='/uscms/home/bburkle/nobackup/working_area/CMSSW_9_3_0/src/MLAnalyzer/output/test'
+#decays = ['DiPhotonBorn_MGG90_Eta23', 'GluGluHToGG_MGG90_Eta23', 'GJet_MGG90_Eta23']
+decays = ['TTbar','QCD']
+#decays = ['dummy']
 
 #chunk_size_ = 250
-chunk_size_ = 200
+chunk_size_ = 100
 #scale = [100., 150.]
 scale = [1., 1.]
 jet_shape = 125
@@ -148,7 +151,8 @@ for j,decay in enumerate(decays):
         pass
         #continue
 
-    tfile_str = 'output_dijet.root'
+    #tfile_str = 'output_dijet.root'
+    tfile_str = '%s/%s_test.root'%(eosDir,decay)
     #tfile_str = 'output_ggqq.root'
     #tfile_str = 'output_numEvent20.root'
     #tfile_str = '%s/%s_IMG.root'%(eosDir,decay)
@@ -324,7 +328,7 @@ for j,decay in enumerate(decays):
     X_EB = da.concatenate([X_EB, X_HBHE_EB_up], axis=-1)
     print " >> %s: %s"%('X_EB', X_EB.shape)
 
-    for ijet in [0,1]:
+    for ijet in [0]: #[0,1]:
 
         print ' >> jet index',ijet
 
@@ -386,7 +390,8 @@ for j,decay in enumerate(decays):
                 chunks=(chunk_size,))
         print "  >> y shape:",y.shape
 
-        file_out_str = "test_dijet_ijet%d.hdf5"%(ijet)
+        #file_out_str = "%s/test_dijet_ijet%d.hdf5"%(outDir,ijet)
+        file_out_str = "%s/%s.hdf5"%(outDir,decay)
         #file_out_str = "test%d_numEvent1.hdf5"%label
         #file_out_str = "%s/%s_IMGall_RH%d_n%d_label%d.hdf5"%(eosDir,decay,int(scale[0]),neff,label)
         #file_out_str = "%s/%s_IMG_RH%d_n%dk.hdf5"%(eosDir,decay,int(scale[0]),neff//1000.)

@@ -146,7 +146,8 @@ bool RecHitAnalyzer::runEvtSel_jet ( const edm::Event& iEvent, const edm::EventS
 
   } // good jets 
   
-  if ( nJet != nJets_ ) return false;
+  //if ( nJet != nJets_ ) return false;
+  if ( nJet < nJets_ ) return false;
   if ( debug ) std::cout << " >> analyze: passed" << std::endl;
 
   jet_eventId_ = iEvent.id().event();

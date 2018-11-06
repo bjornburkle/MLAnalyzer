@@ -13,3 +13,4 @@
  <use name="Geometry/Records"/>
  <use name="CommonTools/UtilAlgos"/>
  <use name="Calibration/IsolatedParticles"/>
+ <use name="DataFormats/EcalDetId"/>
