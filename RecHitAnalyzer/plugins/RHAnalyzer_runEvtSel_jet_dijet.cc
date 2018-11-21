@@ -31,28 +31,72 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
 {
 
   edm::Handle<reco::PFJetCollection> jets;
+  edm::Handle<reco::GenParticleCollection> genParticles;
   iEvent.getByToken(jetCollectionT_, jets);
+  iEvent.getByToken(genParticleCollectionT_, genParticles);
 
   vJetIdxs.clear();
   vDijet_jet_pT_.clear();
   vDijet_jet_m0_.clear();
   vDijet_jet_eta_.clear();
 
+  std::vector<TLorentzVector> had_tops,bdau,wdau;
+  for (const auto & p : *genParticles.product())
+  {
+    int id = p.pdgId();
+    if(abs(id) != 6 || p.numberOfDaughters()!=2) continue;
+    int iw=-1;
+    int ib=-1;
+    if (abs(p.daughter(0)->pdgId())==24 && abs(p.daughter(1)->pdgId())==5)
+    {
+      iw=0;ib=1;
+    }
+    else
+    {
+      if(abs(p.daughter(1)->pdgId())==24 && abs(p.daughter(0)->pdgId())==5)
+      {
+        iw=1;ib=0;
+      }
+      else continue;
+    }
+    const reco::Candidate *d = p.daughter(iw);
+    const reco::Candidate *b = p.daughter(ib);
+    while(d->numberOfDaughters() == 1) d = d->daughter(0);
+    if(!(abs(d->daughter(0)->pdgId()) < 10 && abs(d->daughter(1)->pdgId()) < 10)) continue;
+    TLorentzVector the_top,the_w,the_b;
+    the_top.SetPtEtaPhiE(p.pt(),p.eta(),p.phi(),p.energy());
+    the_w.SetPtEtaPhiE(d->pt(),d->eta(),d->phi(),d->energy());
+    the_b.SetPtEtaPhiE(b->pt(),b->eta(),b->phi(),b->energy());
+    had_tops.push_back(the_top);
+    wdau.push_back(the_w);
+    bdau.push_back(the_b);
+  }
+
   int nJet = 0;
   // Loop over jets
-  for ( unsigned iJ(0); iJ != unsigned(std::min(int(jets->size()),2)); ++iJ ) {
+  for ( unsigned ihad=0;ihad<had_tops.size();ihad++)
+  {
+    for ( unsigned iJ(0); iJ != jets->size(); ++iJ )
+    {
+      reco::PFJetRef iJet( jets, iJ );
+      TLorentzVector vjet;
+      vjet.SetPtEtaPhiE(iJet->pt(),iJet->eta(),iJet->phi(),iJet->energy());
 
-    reco::PFJetRef iJet( jets, iJ );
-    if ( std::abs(iJet->pt()) < minJetPt_ ) continue;
-    if ( std::abs(iJet->eta()) > maxJetEta_) continue;
-    if ( debug ) std::cout << " >> jet[" << iJ << "]Pt:" << iJet->pt() << " jetE:" << iJet->energy() << " jetM:" << iJet->mass() << std::endl;
+      if ( std::abs(iJet->pt()) < minJetPt_ ) continue;
+      if ( std::abs(iJet->eta()) > maxJetEta_) continue;
+      if (had_tops[ihad].DeltaR(vjet)>0.8) continue;
+      if (wdau[ihad].DeltaR(vjet)>0.8) continue;
+      if (bdau[ihad].DeltaR(vjet)>0.8) continue;
 
-    vJetIdxs.push_back(iJ);
+      if ( debug ) std::cout << " >> jet[" << iJ << "]Pt:" << iJet->pt() << " jetE:" << iJet->energy() << " jetM:" << iJet->mass() << std::endl;
 
-    nJet++;
+      vJetIdxs.push_back(iJ);
+
+      nJet++;
+      //break; This should allow two hardonic tops
+    } // jets
     if ( (nJets_ > 0) && (nJet >= nJets_) ) break;
-
-  } // jets
+  } // hadronic tops
 
 
   if ( debug ) {
