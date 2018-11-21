@@ -64,6 +64,7 @@
 #include "TCanvas.h"
 #include "TStyle.h"
 #include "TMath.h"
+#include "TLorentzVector.h"
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
